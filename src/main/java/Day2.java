@@ -7,7 +7,7 @@ public class Day2 {
 
     public static void main(String[] args) throws IOException {
 
-        List<String> inputs = FileReader.read(1);
+        List<String> inputs = FileReader.read(2);
 
         System.out.println(reponse1(inputs));
         System.out.println(reponse2(inputs));
