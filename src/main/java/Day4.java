@@ -74,15 +74,15 @@ public class Day4 {
                         mapCard.put(n + i, mapCard.get(n + i) + 1);
                     }
                 }
-
-                mapCard.putIfAbsent(n, 1);
             }
+
+            mapCard.putIfAbsent(n, 1);
         }
 
         for (Map.Entry<Integer, Integer> entrySet : mapCard.entrySet()) {
             sum += entrySet.getValue();
         }
 
-        return sum +1;
+        return sum;
     }
 }
