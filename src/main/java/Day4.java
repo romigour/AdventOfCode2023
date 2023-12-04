@@ -9,7 +9,7 @@ public class Day4 {
 
         List<String> inputs = FileReader.read(4);
 
-        //System.out.println(reponse1(inputs));
+        System.out.println(reponse1(inputs));
         System.out.println(reponse2(inputs));
     }
 
