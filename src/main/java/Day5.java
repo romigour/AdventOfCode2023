@@ -1,7 +1,9 @@
 import util.FileReader;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Day5 {
 
@@ -9,7 +11,7 @@ public class Day5 {
 
         List<String> inputs = FileReader.read(5);
 
-//        System.out.println(reponse1(inputs));
+        System.out.println(reponse1(inputs));
         System.out.println(reponse2(inputs));
     }
 
@@ -48,52 +50,78 @@ public class Day5 {
     }
 
     private static long reponse2(List<String> inputs) {
+        // Récupération des seeds
         List<Long> rangeSeeds = Arrays.stream(inputs.get(0).replaceAll("seeds: ", "").split(" ")).map(Long::parseLong).toList();
+        List<Range> ranges = new ArrayList<>();
+        for (int s = 0 ; s < rangeSeeds.size(); s = s + 2) {
+            long start = rangeSeeds.get(s);
+            long rangeLenght = rangeSeeds.get(s+1);
+            ranges.add(new Range(start, rangeLenght));
+        }
 
-        long survivor = Long.MAX_VALUE;
-        for (int r = 0; r < rangeSeeds.size(); r = r+2) {
-            List<Long> seeds = new ArrayList<>();
-
-            System.out.println("Range [" + rangeSeeds.get(r) + " -> " + rangeSeeds.get(r+1) + "]");
-            for (long j = rangeSeeds.get(r); j < (rangeSeeds.get(r) + rangeSeeds.get(r+1)); j = j + 10000000) {
-                seeds.clear();
-                for (long k = j; k < (j + 10000000) && k < (rangeSeeds.get(r) + rangeSeeds.get(r+1)); k++) {
-                    seeds.add(k);
-                }
-                List<String> path = new ArrayList<>();
-                List<List<Long>> lines = new ArrayList<>();
-                for (int i = 1; i < inputs.size(); i++) {
-                    if (inputs.get(i).isEmpty() || i == inputs.size()-1) {
-                        List<Long> nextSeeds = new ArrayList<>();
-                        for (long seed: seeds) {
-
-                            long newsSeed = -1L;
-                            for (List<Long> line: lines) {
-                                if (seed >= line.get(1) && seed < (line.get(1) + line.get(2))) {
-                                    newsSeed = line.get(0) - line.get(1) + seed;
-                                    nextSeeds.add(newsSeed);
-                                }
-                            }
-
-                            if (newsSeed == -1L) {
-                                nextSeeds.add(seed);
-                            }
-                        }
-                        seeds = nextSeeds;
-                        path.clear();
-                        lines.clear();
-                    } else if (inputs.get(i).contains(":")) {
-                        path.addAll(Arrays.stream(inputs.get(i).split(" ")[0].split("-to-")).toList());
-                    } else {
-                        lines.add(Arrays.stream(inputs.get(i).split(" ")).map(Long::parseLong).toList());
-                    }
-                }
-
-                long challenger = seeds.stream().mapToLong(v -> v).min().orElse(Long.MAX_VALUE);
-                if (survivor > challenger) survivor = challenger;
+        // Récupération des Catérogies
+        List<MapTo> mapsTo = new ArrayList<>();
+        for (int i = 1; i < inputs.size(); i++) {
+            if (inputs.get(i).contains(":")) {
+                mapsTo.add(new MapTo(inputs.get(i)));
+            } else if (inputs.get(i).isEmpty()) {
+            } else {
+                List<Long> values = Arrays.stream(inputs.get(i).split(" ")).map(Long::parseLong).toList();
+                mapsTo.get(mapsTo.size() - 1).categories.add(new Category(values.get(1), values.get(0), values.get(2)));
             }
         }
 
-        return survivor;
+        long min = Long.MAX_VALUE;
+        for (Range range: ranges) {
+            for (long seed = range.start; seed <= (range.start + range.rangeLenght); seed++) {
+
+                long newsSeed = seed;
+                for (MapTo map : mapsTo) {
+                    for (Category category : map.categories) {
+                        if (newsSeed >= category.start && newsSeed < (category.start + category.range)) {
+                            newsSeed = category.destination - category.start + newsSeed;
+                            break;
+                        }
+                    }
+                }
+                if (min > newsSeed) {
+                    min = newsSeed;
+                }
+            }
+            System.out.println("Range [" + range.start + " -> " + range.rangeLenght + "] Done");
+        }
+
+        return min;
+    }
+
+    static class MapTo {
+        String name;
+        List<Category> categories = new ArrayList<>();
+
+        public MapTo(String name) {
+            this.name = name;
+        }
+    }
+
+    static class Category {
+        long start;
+        long destination;
+        long range;
+
+        public Category(long start, long destination, long range) {
+            this.start = start;
+            this.destination = destination;
+            this.range = range;
+        }
+    }
+
+    static class Range {
+        long start;
+        long rangeLenght;
+
+        public Range(long start, long rangeLenght) {
+            this.start = start;
+            this.rangeLenght = rangeLenght;
+        }
     }
 }
