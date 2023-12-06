@@ -71,8 +71,8 @@ public class Day5 {
             }
         }
 
-        long min = Long.MAX_VALUE;
-        for (Range range: ranges) {
+        final long[] min = {Long.MAX_VALUE};
+        ranges.stream().parallel().forEach(range -> {
             for (long seed = range.start; seed <= (range.start + range.rangeLenght); seed++) {
 
                 long newsSeed = seed;
@@ -84,14 +84,13 @@ public class Day5 {
                         }
                     }
                 }
-                if (min > newsSeed) {
-                    min = newsSeed;
+                if (min[0] > newsSeed) {
+                    min[0] = newsSeed;
                 }
             }
-            System.out.println("Range [" + range.start + " -> " + range.rangeLenght + "] Done");
-        }
-
-        return min;
+            System.out.println("Range [" + range.start + " -> " + range.rangeLenght + "] Done with min value : " + min[0]);
+        });
+        return min[0];
     }
 
     static class MapTo {
